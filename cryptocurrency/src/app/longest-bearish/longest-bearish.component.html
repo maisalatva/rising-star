@@ -2,13 +2,21 @@
 
 <div>
     <label for="startdate">Start Date (YYYY-MM-DD): </label>
-    <input id="startdate" [(ngModel)]="bearish.startDate" placeholder="startdate">
+    <input id="startdate" [(ngModel)]="startDate" placeholder="Start Date">
     <p></p>
     <label for="enddate">End Date (YYYY-MM-DD): </label>
-    <input id="enddate" [(ngModel)]="bearish.endDate" placeholder="enddate">
+    <input id="enddate" [(ngModel)]="endDate" placeholder="End Date">
 </div>
-<p></p>
-<div><span>Start Date: </span> {{bearish.startDate}}</div>
-<div><span>End Date: </span> {{bearish.endDate}}</div>
+<button class="Search"
+          (click)="getUnix(startDate, endDate)">Search</button>
 
-<div><span>Juttu: </span> {{lause}} </div>
+<p></p>
+<div><span>Start Date: </span> {{startDate}}</div>
+<div><span>End Date: </span> {{endDate}}</div>
+<p></p>
+
+<div><span>Start Date: </span> {{unixStart}}</div>
+<div><span>End Date: </span> {{unixEnd}}</div>
+
+<div><span>Juttu: </span> {{string}} </div>
+<div><span></span></div>

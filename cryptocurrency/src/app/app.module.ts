@@ -7,11 +7,13 @@ import { LongestBearishComponent } from './longest-bearish/longest-bearish.compo
 
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { DateComponent } from './date/date.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LongestBearishComponent
+    LongestBearishComponent,
+    DateComponent
   ],
   imports: [
     BrowserModule,
