@@ -9,13 +9,17 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { DateComponent } from './date/date.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { TradingVolumeComponent } from './trading-volume/trading-volume.component';
+import { TimeMachineComponent } from './time-machine/time-machine.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LongestBearishComponent,
     DateComponent,
-    DashboardComponent
+    DashboardComponent,
+    TradingVolumeComponent,
+    TimeMachineComponent
   ],
   imports: [
     BrowserModule,
@@ -23,7 +27,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     FormsModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [DateComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

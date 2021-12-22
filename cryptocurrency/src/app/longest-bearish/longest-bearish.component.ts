@@ -1,9 +1,9 @@
 //import { Component, OnInit } from '@angular/core';
-import { Bearish } from '../bearish';
 import { LongestBearishService } from '../longest-bearish.service';
-import { Observable } from 'rxjs';
+//import { Observable } from 'rxjs';
 //import { date } from '../date';
 import { Component, OnInit, Input } from '@angular/core';
+import { DateComponent } from '../date/date.component';
 
 @Component({
   selector: 'app-longest-bearish',
@@ -28,7 +28,7 @@ export class LongestBearishComponent implements OnInit {
   montako: number = 0;
   listamontako: Array<number> = [];
   days: Array<String> = [];
-  allTheDays: Array<Array<String>>= [];
+  allTheDays: Array<Array<String>> = [];
 
   date1: String = "";
   date2: String = "";
@@ -38,23 +38,25 @@ export class LongestBearishComponent implements OnInit {
 
   // response2 = this.response.pipe(x => console.log(x.pipe(_)));
   constructor(
-    private lbservice: LongestBearishService) { }
+    private lbservice: LongestBearishService,
+    private date: DateComponent) { }
+
 
   ngOnInit(): void {
-    this.lbservice.getJson().subscribe(data => {
-      this.json = JSON.parse(JSON.stringify(data))
-      //this.setString(JSON.stringify(data) )      
-      this.getPrices(JSON.stringify(this.json.prices));
-      //console.log(this.listamontako);
-      this.setString(this.listamontako.sort().reverse()[0].toString());
-      this.longestBearish();
-      //console.log(this.days.toString());
-      //console.log(this.listamontako.sort()[0].toString());
-      //this.setString(JSON.stringify(this.json.prices))
-    });
+    // this.lbservice.getJson(this.startDate, this.endDate).subscribe(data => {
+    //   this.json = JSON.parse(JSON.stringify(data))
+    //   //this.setString(JSON.stringify(data) )      
+    //   this.getPrices(JSON.stringify(this.json.prices));
+    //   //console.log(this.listamontako);
+    //   this.setString(this.listamontako.sort().reverse()[0].toString());
+    //   this.longestBearish();
+    //   //console.log(this.days.toString());
+    //   //console.log(this.listamontako.sort()[0].toString());
+    //   //this.setString(JSON.stringify(this.json.prices))
+    // });
 
-    this.obj = JSON.parse(JSON.stringify(this.lbservice.getJson()));
-    //this.x.getPrice().subscribe(data => {console.log(data)});
+    // this.obj = JSON.parse(JSON.stringify(this.lbservice.getJson(this.startDate, this.endDate)));
+    // //this.x.getPrice().subscribe(data => {console.log(data)});
     //this.getPrices();
     // console.log(JSON.stringify(this.response));
   }
@@ -83,16 +85,16 @@ export class LongestBearishComponent implements OnInit {
       }
       else if (j % 2 != 0) {
         this.listamontako.push(this.montako);
-        
+
         //this.days.push(this.price[j - 1]);
         this.montako = 0;
-        
+
         this.verrattava = this.price[j];
       }
     }
   }
 
-  clearTheList(){
+  clearTheList() {
     for (let i = 0; i < this.price.length; i++) {
       if (this.price[i].includes('[')) {
         //removes date imes
@@ -112,20 +114,41 @@ export class LongestBearishComponent implements OnInit {
     this.string = stri;
   }
 
-  getUnix(date1: String, date2: String) {
-    this.unixStart = new Date(date1 + " 00:00:00").getTime()/1000;
-    this.unixEnd = new Date(date2 + " 00:00:00").getTime()/1000;
-  }
+  // getUnix(date1: String, date2: String) {
+  //   this.unixStart = new Date(date1 + " 00:00:00").getTime() / 1000;
+  //   this.unixEnd = new Date(date2 + " 00:00:00").getTime() / 1000;
+  // }
 
-  longestBearish(){
+  longestBearish() {
     //for (let list in this.allTheDays){
-    let help = this.allTheDays.sort((a,b) => a.length - b.length).reverse()[0];
+    let help = this.allTheDays.sort((a, b) => a.length - b.length).reverse()[0];
     this.date1 = help[0].toString();
-    this.date2 = help[help.length-1].toString();
-    
-   // }
+    this.date2 = help[help.length - 1].toString();
+
+    // }
   }
 
+  getData() {
+    this.lbservice.getJson(this.unixStart.toString(), this.unixEnd.toString()).subscribe(data => {
+      this.json = JSON.parse(JSON.stringify(data))
+      //this.setString(JSON.stringify(data) )      
+      this.getPrices(JSON.stringify(this.json.prices));
+      //console.log(this.listamontako);
+      this.setString(this.listamontako.sort().reverse()[0].toString());
+      this.longestBearish();
+      //console.log(this.days.toString());
+      //console.log(this.listamontako.sort()[0].toString());
+      //this.setString(JSON.stringify(this.json.prices))
+    });
+
+    this.obj = JSON.parse(JSON.stringify(this.lbservice.getJson(this.unixStart.toString(), this.unixEnd.toString())));
+  }
+
+  search(){
+    this.unixStart = this.date.getUnixStart(this.startDate);
+    this.unixEnd = this.date.getUnixEnd(this.endDate);
+    this.getData();
+  }
   // getUnixStart() {
   //   return this.unixStart;
   // }

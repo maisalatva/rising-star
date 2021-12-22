@@ -12,7 +12,10 @@ export class DateComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  getUnixTime(n: String){
-    return new Date(n + " 00:00:00").getTime();
+  getUnixStart(date: String) {
+    return (new Date(date + " 00:00:00").getTime() / 1000);
+  }
+  getUnixEnd(date: String){
+    return (new Date(date + " 00:00:00").getTime() / 1000);
   }
 }
