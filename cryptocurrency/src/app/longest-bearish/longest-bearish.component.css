@@ -1,0 +1,14 @@
+button.Search {
+    position: absolute;
+    left: 200px;
+    top: 250px;
+    background-color: white;
+    color:  #525252;
+    font-size: 1.1rem;
+    padding: 1px 10px 3px 10px;
+  }
+  
+  button.Search:hover {
+    background-color: #525252;
+    color: white;
+  }

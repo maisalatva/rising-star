@@ -27,6 +27,12 @@ export class LongestBearishComponent implements OnInit {
   verrattava: String = "";
   montako: number = 0;
   listamontako: Array<number> = [];
+  days: Array<String> = [];
+  allTheDays: Array<Array<String>>= [];
+
+  date1: String = "";
+  date2: String = "";
+
 
   //response = this.x.getPrice().subscribe(data => {console.log(data)});
 
@@ -41,6 +47,8 @@ export class LongestBearishComponent implements OnInit {
       this.getPrices(JSON.stringify(this.json.prices));
       //console.log(this.listamontako);
       this.setString(this.listamontako.sort().reverse()[0].toString());
+      this.longestBearish();
+      //console.log(this.days.toString());
       //console.log(this.listamontako.sort()[0].toString());
       //this.setString(JSON.stringify(this.json.prices))
     });
@@ -53,29 +61,51 @@ export class LongestBearishComponent implements OnInit {
 
   getPrices(stri: String) {
     this.price = stri.split(',');
+
+    this.clearTheList();
+
+    this.verrattava = this.price[1];
+    this.days.push(this.price[0]);
+    for (let j = 1; j < this.price.length; j++) {
+      if (j % 2 != 0 && this.price[j] < this.verrattava) {
+
+        //tyhjätään päivä lista jotta voidaan aloittaa alusta uuden listan kohdalla
+        if (this.days.length != 0 && this.montako == 0) {
+          this.allTheDays.push(this.days);
+          //console.log(this.allTheDays)
+          this.days = [];
+        }
+        //console.log(this.days.length);
+
+        this.montako = this.montako + 1;
+        this.verrattava = this.price[j];
+        this.days.push(this.price[j - 1]);
+      }
+      else if (j % 2 != 0) {
+        this.listamontako.push(this.montako);
+        
+        //this.days.push(this.price[j - 1]);
+        this.montako = 0;
+        
+        this.verrattava = this.price[j];
+      }
+    }
+  }
+
+  clearTheList(){
     for (let i = 0; i < this.price.length; i++) {
       if (this.price[i].includes('[')) {
         //removes date imes
-        this.price.splice(i, 1);
-        //this.price[i].replace('[', '');
+        //this.price.splice(i, 1);
+        this.price[i] = this.price[i].replace('[', '');
+        if (this.price[i].includes('[')) {
+          this.price[i] = this.price[i].replace('[', '');
+        }
       }
       if (this.price[i].includes(']')) {
-        this.price[i].replace(']', '');
+        this.price[i] = this.price[i].replace(']', '');
       }
     }
-    this.verrattava = this.price[0];
-    for (let j = 0; j < this.price.length; j++) {
-      if (this.price[j] < this.verrattava) {
-        this.montako = this.montako + 1;
-        this.verrattava = this.price[j];
-      }
-      else {
-        this.listamontako.push(this.montako);
-        this.montako = 0;
-        this.verrattava = this.price[j];
-      }
-    }
-
   }
 
   setString(stri: String) {
@@ -83,14 +113,23 @@ export class LongestBearishComponent implements OnInit {
   }
 
   getUnix(date1: String, date2: String) {
-    this.unixStart = new Date(date1 + " 00:00:00").getTime();
-    this.unixEnd = new Date(date2 + " 00:00:00").getTime();
+    this.unixStart = new Date(date1 + " 00:00:00").getTime()/1000;
+    this.unixEnd = new Date(date2 + " 00:00:00").getTime()/1000;
   }
 
-  getUnixStart() {
-    return this.unixStart;
+  longestBearish(){
+    //for (let list in this.allTheDays){
+    let help = this.allTheDays.sort((a,b) => a.length - b.length).reverse()[0];
+    this.date1 = help[0].toString();
+    this.date2 = help[help.length-1].toString();
+    
+   // }
   }
-  getUnixEnd() {
-    return this.unixEnd;
-  }
+
+  // getUnixStart() {
+  //   return this.unixStart;
+  // }
+  // getUnixEnd() {
+  //   return this.unixEnd;
+  // }
 }
