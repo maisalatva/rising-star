@@ -1,1 +1,15 @@
-<p>time-machine works!</p>
+<h2>Figure out when to buy and when to sell</h2>
+<div>
+    <label for="startdate">Start Date (YYYY-MM-DD): </label>
+    <input id="startdate" [(ngModel)]="startDate" placeholder="Start Date">
+    <p></p>
+    <label for="enddate">End Date (YYYY-MM-DD): </label>
+    <input id="enddate" [(ngModel)]="endDate" placeholder="End Date">
+</div>
+<button class="Search" (click)="search()">Search</button>
+<p>&nbsp;</p>
+
+<div><span>The date with the lowest price is and the date with
+    highest price is {{timeToSell.toLocaleDateString("en-US")}}
+    </span>
+</div>

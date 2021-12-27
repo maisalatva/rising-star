@@ -63,13 +63,11 @@ export class TradingVolumeComponent implements OnInit {
 
         //tyhjätään päivä lista jotta voidaan aloittaa alusta uuden listan kohdalla
         this.days = this.price[j-1];
-        console.log(this.days);
         this.verrattava = this.price[j];
-        console.log(this.verrattava);
       }
     }
     this.volume = this.verrattava;
-    console.log(Number(this.days)*1000);
+    //console.log(Number(this.days)*1000);
     this.date = new Date(Number(this.days));
   }
 
