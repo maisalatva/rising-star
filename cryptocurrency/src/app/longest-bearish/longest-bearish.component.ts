@@ -30,8 +30,10 @@ export class LongestBearishComponent implements OnInit {
   days: Array<String> = [];
   allTheDays: Array<Array<String>> = [];
 
-  date1: String = "";
-  date2: String = "";
+  //date1: String = "";
+  //date2: String = "";
+  date1: Date = new Date();
+  date2: Date = new Date();
 
 
   //response = this.x.getPrice().subscribe(data => {console.log(data)});
@@ -61,10 +63,10 @@ export class LongestBearishComponent implements OnInit {
     // console.log(JSON.stringify(this.response));
   }
 
-  getPrices(stri: String) {
+  getDaysAndPrices(stri: String) {
     this.price = stri.split(',');
 
-    this.clearTheList();
+    this.polishTheList();
 
     this.verrattava = this.price[1];
     this.days.push(this.price[0]);
@@ -94,7 +96,7 @@ export class LongestBearishComponent implements OnInit {
     }
   }
 
-  clearTheList() {
+  polishTheList() {
     for (let i = 0; i < this.price.length; i++) {
       if (this.price[i].includes('[')) {
         //removes date imes
@@ -106,6 +108,9 @@ export class LongestBearishComponent implements OnInit {
       }
       if (this.price[i].includes(']')) {
         this.price[i] = this.price[i].replace(']', '');
+        if (this.price[i].includes(']')) {
+          this.price[i] = this.price[i].replace(']', '');
+        }
       }
     }
   }
@@ -122,17 +127,17 @@ export class LongestBearishComponent implements OnInit {
   longestBearish() {
     //for (let list in this.allTheDays){
     let help = this.allTheDays.sort((a, b) => a.length - b.length).reverse()[0];
-    this.date1 = help[0].toString();
-    this.date2 = help[help.length - 1].toString();
+    this.date1 = new Date(Number(help[0]));
+    this.date2 = new Date(Number(help[help.length - 1]));
 
     // }
   }
 
   getData() {
     this.lbservice.getJson(this.unixStart.toString(), this.unixEnd.toString()).subscribe(data => {
-      this.json = JSON.parse(JSON.stringify(data))
+      this.json = JSON.parse(JSON.stringify(data));
       //this.setString(JSON.stringify(data) )      
-      this.getPrices(JSON.stringify(this.json.prices));
+      this.getDaysAndPrices(JSON.stringify(this.json.prices));
       //console.log(this.listamontako);
       this.setString(this.listamontako.sort().reverse()[0].toString());
       this.longestBearish();

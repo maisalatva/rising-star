@@ -19,6 +19,6 @@
     <span>End date in UNIX: </span> {{unixEnd}}
     <p></p>
     <span> In bitcoin's historical data from CoinGecko, the price decreased </span> {{string}} 
-    <span> days in a row for the from </span> {{date1}} 
-    <span> and to </span> {{date2}}
+    <span> days in a row for the from </span> {{date1.toLocaleDateString("en-US")}} 
+    <span> to </span> {{date2.toLocaleDateString("en-US")}}
 </div>
