@@ -34,6 +34,10 @@ export class TimeMachineComponent implements OnInit {
   timeToSell: Date = new Date();
   timeToBuy: Date = new Date();
 
+  comment: String = "";
+
+  clicked: Boolean = false;
+
   constructor(
     private dateComponent: DateComponent,
     private lbservice: LongestBearishService) { }
@@ -53,6 +57,7 @@ export class TimeMachineComponent implements OnInit {
     this.unixStart = this.dateComponent.getUnixStart(this.startDate);
     this.unixEnd = this.dateComponent.getUnixEnd(this.endDate);
     this.getData();
+    this.clicked = true;
   }
 
 
@@ -63,6 +68,7 @@ export class TimeMachineComponent implements OnInit {
     //this.date1 = new Date(Number(help[help.length - 1]));
 
     this.timeToSell = new Date(Number(this.highestPriceDay));
+    this.timeToBuy = new Date(Number(this.lowestPriceDay));
     // }
   }
 
@@ -70,53 +76,104 @@ export class TimeMachineComponent implements OnInit {
     this.price = stri.split(',');
 
     this.polishTheList();
-
-    this.getLowestPrice();
-    this.getBestPrice();
-
-  }
-
-  getBestPrice() {
-
-    let i = 0;
-    while (this.price[i] != this.lowestPrice) {
-      i++;
-    }
-
-    if (i != this.price.length) {
-
-      this.highestPrice = this.price[i + 1];
-      this.highestPriceDay = this.price[i];
-
-      for (let j = i; j < this.price.length; j++) {
-        if (j % 2 != 0 && this.price[j] > this.highestPrice) {
-          this.highestPrice = this.price[j];
-          this.highestPriceDay = this.price[j - 1];
+    //let comparePrice = Number(this.price[this.price.length-1]);
+    let paivat = "";
+    let mappi = new Map<String, Number>()
+    let profit = Number(this.price[1]);
+    for(let i = this.price.length-1; i >= 0; i-=2){
+      let comparePrice = Number(this.price[this.price.length-1]);
+      for(let j = 1; j < i; j+=2){
+        if(Number(this.price[j]) < comparePrice){
+          profit = comparePrice-Number(this.price[j]);
+          paivat = this.price[i-1] + "," + this.price[j-1];
+          mappi.set(paivat, profit);
         }
-        // else if (j % 2 != 0) {
-        //   this.verrattava = this.price[j];
-        // }
       }
     }
-    else{
-      //TÄHÄN TULOSTUS MYYNNIN KANNATTAMATTOMUUDESTA
-    }
+    // for(let i = 1; i < this.price.length; i+=2){
+    //   if(Number(this.price[i]) > comparePrice){
+    //     if(paivat == ""){
+    //       paivat = this.price[i-1].toString();
+    //       profit = Number(this.price[i]);
+    //       //console.log(profit);
+    //     }
+    //   }
+    //   else{
+    //     if(paivat != ""){
+    //       mappi.set((paivat + "," + this.price[i-1]), (profit - Number(this.price[i])));
+    //       paivat = "";
+    //       profit = Number(this.price[i]);
+    //     }
+    //   }
+    //   comparePrice = Number(this.price[i]);
+    // }
+    //console.log(mappi);
+    this.getProfit(mappi);
   }
 
-  getLowestPrice() {
-    this.lowestPrice = this.price[1];
-    this.lowestPriceDay = this.price[0];
-
-    for (let j = 1; j < this.price.length; j++) {
-      if (j % 2 != 0 && this.price[j] < this.lowestPrice) {
-        this.lowestPrice = this.price[j];
-        this.lowestPriceDay = this.price[j - 1];
+  getProfit(mappi: Map<String, Number>){
+    console.log(mappi);
+    let compareValue = 0;
+    let compareKey = "";
+    for(let key of mappi.keys()){
+      if(Number(mappi.get(key)) > compareValue){
+        compareValue = Number(mappi.get(key));
+        compareKey = key.toString();
+        console.log(compareKey)
       }
-      // else if (j % 2 != 0) {
-      //   this.verrattava = this.price[j];
-      // }
     }
+    console.log(compareKey)
+    this.lowestPriceDay = compareKey.split(',')[1];
+    this.highestPriceDay = compareKey.split(',')[0];
+    //console.log(this.lowestPriceDay);
+    //console.log(this.highestPriceDay);
   }
+
+  // getBestPrice() {
+
+  //   let i = 0;
+  //   while (this.price[i] != this.lowestPrice) {
+  //     i++;
+  //   }
+
+  //   if (i != this.price.length) {
+
+  //     this.highestPrice = this.price[i + 1];
+  //     this.highestPriceDay = this.price[i];
+
+  //     for (let j = i; j < this.price.length; j++) {
+  //       if (j % 2 != 0 && this.price[j] > this.highestPrice) {
+  //         this.highestPrice = this.price[j];
+  //         this.highestPriceDay = this.price[j - 1];
+  //       }
+  //       // else if (j % 2 != 0) {
+  //       //   this.verrattava = this.price[j];
+  //       // }
+  //     }
+  //   }
+  //   else{
+  //     this.giveComment();
+  //   }
+  // }
+
+  // giveComment(){
+  //   this.comment = "You should not buy (nor sell) bitcoin on any of the days.";
+  // }
+
+  // getLowestPrice() {
+  //   this.lowestPrice = this.price[1];
+  //   this.lowestPriceDay = this.price[0];
+
+  //   for (let j = 1; j < this.price.length; j++) {
+  //     if (j % 2 != 0 && this.price[j] < this.lowestPrice) {
+  //       this.lowestPrice = this.price[j];
+  //       this.lowestPriceDay = this.price[j - 1];
+  //     }
+  //     // else if (j % 2 != 0) {
+  //     //   this.verrattava = this.price[j];
+  //     // }
+  //   }
+  // }
 
   //sama kuin longest-bearishessä
   polishTheList() {

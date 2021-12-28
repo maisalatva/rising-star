@@ -26,6 +26,10 @@ export class LongestBearishService {
 
       
   getJson(datef: String, datet: String) {
+    //console.log(datet);
+    //lisätään tunti to päivämäärään
+    datet = (Number(datet)+10800).toString();
+    //console.log(datet)
     var finalUrl;
     var baseUrl = 'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?'
     var currency = 'vs_currency=' + 'eur' //vs_currency=eur

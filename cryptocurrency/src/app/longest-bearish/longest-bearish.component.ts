@@ -17,8 +17,8 @@ export class LongestBearishComponent implements OnInit {
   @Input() endDate: String = "";
   //}
 
-  unixStart: number = 0;
-  unixEnd: number = 0;
+  // unixStart: number = 0;
+  // unixEnd: number = 0;
   string: String = "";
   obj: Object = "";
   json: any;
@@ -34,6 +34,8 @@ export class LongestBearishComponent implements OnInit {
   //date2: String = "";
   date1: Date = new Date();
   date2: Date = new Date();
+
+  clicked: Boolean = false;
 
 
   //response = this.x.getPrice().subscribe(data => {console.log(data)});
@@ -127,32 +129,54 @@ export class LongestBearishComponent implements OnInit {
   longestBearish() {
     //for (let list in this.allTheDays){
     let help = this.allTheDays.sort((a, b) => a.length - b.length).reverse()[0];
+    
+    //valitaan päivän ensimmäinen hinta
+    let help2 = [];
+    for(let i = 1; i <= help.length; i++){
+      let eka = new Date(Number(help[i-1]))
+      //console.log(eka);
+      let toka = new Date(Number(help[i]))
+      //console.log(toka)
+      if(eka.toLocaleDateString("en-US") != toka.toLocaleDateString("en-US")){
+        //console.log("lol")
+        help2.push(eka);
+      }
+    }
+
+    //console.log(help2);
+    this.montako = help2.length;
     this.date1 = new Date(Number(help[0]));
     this.date2 = new Date(Number(help[help.length - 1]));
 
     // }
   }
 
-  getData() {
-    this.lbservice.getJson(this.unixStart.toString(), this.unixEnd.toString()).subscribe(data => {
+  getData(unixStart: number, unixEnd: number) {
+    this.lbservice.getJson(unixStart.toString(), unixEnd.toString()).subscribe(data => {
       this.json = JSON.parse(JSON.stringify(data));
       //this.setString(JSON.stringify(data) )      
       this.getDaysAndPrices(JSON.stringify(this.json.prices));
       //console.log(this.listamontako);
-      this.setString(this.listamontako.sort().reverse()[0].toString());
+      //this.setString(this.listamontako.sort().reverse()[0].toString());
       this.longestBearish();
+      this.setString(this.montako.toString());
       //console.log(this.days.toString());
       //console.log(this.listamontako.sort()[0].toString());
       //this.setString(JSON.stringify(this.json.prices))
     });
 
-    this.obj = JSON.parse(JSON.stringify(this.lbservice.getJson(this.unixStart.toString(), this.unixEnd.toString())));
+    //this.obj = JSON.parse(JSON.stringify(this.lbservice.getJson(this.unixStart.toString(), this.unixEnd.toString())));
   }
 
   search(){
-    this.unixStart = this.date.getUnixStart(this.startDate);
-    this.unixEnd = this.date.getUnixEnd(this.endDate);
-    this.getData();
+    let unixStart: number = 0;
+    let unixEnd: number = 0;
+    let sDate: String = this.startDate;
+    let eDate: String = this.endDate;
+    unixStart = this.date.getUnixStart(sDate);
+    unixEnd = this.date.getUnixEnd(eDate);
+    this.getData(unixStart, unixEnd);
+    this.clicked = true;
   }
   // getUnixStart() {
   //   return this.unixStart;
