@@ -1,7 +1,6 @@
-import { NodeWithI18n } from '@angular/compiler';
 import { Component, OnInit, Input } from '@angular/core';
-import { map } from 'rxjs';
-import { DateComponent } from '../date/date.component';
+import { DataParserService } from '../data-parser.service';
+import { DateService } from '../date.service';
 import { LongestBearishService } from '../longest-bearish.service';
 
 @Component({
@@ -14,92 +13,61 @@ export class TradingVolumeComponent implements OnInit {
   @Input() startDate: String = "";
   @Input() endDate: String = "";
 
-  unixStart: number = 0;
-  unixEnd: number = 0;
-
-  json: any;
-  //string: String = "";
-  //date: Date = new Date();
   date: String = "";
   volume: String = "";
 
-  //getDaysAndPrices
-  price: Array<String> = [];
-  //verrattava: String = "";
-  //montako: number = 0;
-  //listamontako: Array<number> = [];
-  days: String = "";
-
   clicked: Boolean = false;
 
-  //allTheDays: Array<Array<String>> = [];
-
   constructor(
-    private dateComponent: DateComponent,
-    private lbservice: LongestBearishService) { }
+    private dateService: DateService,
+    private lbservice: LongestBearishService,
+    private dataService: DataParserService) { }
 
   ngOnInit(): void {
   }
 
-  getData() {
-    this.lbservice.getJson(this.unixStart.toString(), this.unixEnd.toString()).subscribe(data => {
-      this.json = JSON.parse(JSON.stringify(data));
-      this.getDaysAndPrices(JSON.stringify(this.json.total_volumes));
+  getData(unixStart: Number, unixEnd: Number) {
+    this.lbservice.getJson(unixStart.toString(), 
+      unixEnd.toString()).subscribe(data => {
+      let json = JSON.parse(JSON.stringify(data));
+      this.getHighestTradingVolume(JSON.stringify(json.total_volumes));
     });
   }
 
   search(){
-    this.unixStart = this.dateComponent.getUnixStart(this.startDate);
-    this.unixEnd = this.dateComponent.getUnixEnd(this.endDate);
-    this.getData();
+    let unixStart = this.dateService.getUnixTime(this.startDate);
+    let unixEnd = this.dateService.getUnixTime(this.endDate);
+    this.getData(unixStart, unixEnd);
     this.clicked = true;
   }
 
-
-  sortPerDay(){
-    let letMap = new Map<String, Number>();
-    for(let i = 1; i < this.price.length; i+=2){
-      let currentKey = new Date(Number(this.price[i-1])).toLocaleDateString("en-US");
-      let x = letMap.get(currentKey);
+  sortPerDay(stri: String){
+    let daysAndPrices = this.dataService.parseTheData(stri);
+    let mapOfDaysAndPrices = new Map<String, Number>();
+    for(let i = 1; i < daysAndPrices.length; i+=2){
+      let currentKey = this.dateService.getTime(daysAndPrices[i-1])
+        .toLocaleDateString("en-US");
+      let x = mapOfDaysAndPrices.get(currentKey);
       if (x == undefined){
-        letMap.set(currentKey, Number(this.price[i]));
+        mapOfDaysAndPrices.set(currentKey, 
+            Number(daysAndPrices[i]));
       }
       else{
-        letMap.set(currentKey, Number(x)+Number(this.price[i]));
+        mapOfDaysAndPrices.set(currentKey, 
+            Number(x)+Number(daysAndPrices[i]));
       }
       
     }
-    console.log(letMap);
-    return letMap;
+    return mapOfDaysAndPrices;
   }
 
-  getDaysAndPrices(stri: String) {
-    //console.log(stri);
-    this.price = stri.split(',');
+  getHighestTradingVolume(stri: String) {
 
-    this.polishTheList();
-
-    let volumePerDay = this.sortPerDay();
-    //console.log(volumePerDay);
-
-    // this.verrattava = this.price[1];
-    // //this.days.push(this.price[0]);
-    // for (let j = 1; j < this.price.length; j++) {
-    //   if (j % 2 != 0 && this.price[j] > this.verrattava) {
-
-    //     //tyhjätään päivä lista jotta voidaan aloittaa alusta uuden listan kohdalla
-    //     this.days = this.price[j-1];
-    //     this.verrattava = this.price[j];
-    //   }
-    // }
-    // this.volume = this.verrattava;
+    let volumePerDay = this.sortPerDay(stri);
+  
     let compareVolume: Number = 0;
     let compareDay: String = "";
-    // for (let value of volumePerDay.values()){
-    //   if (value > compareVolume){
-    //     compareVolume = value;
-    //   }
-    // }
+
     for(let key of volumePerDay.keys()){
       let value = volumePerDay.get(key);
       if(value != undefined){
@@ -110,28 +78,7 @@ export class TradingVolumeComponent implements OnInit {
       }
     }
     this.volume = compareVolume.toString();
-    //console.log(Number(this.days)*1000);
-    //this.date = new Date(Number(this.days));
     this.date = compareDay;
   }
 
-  //sama kuin longest-bearishessä
-  polishTheList() {
-    for (let i = 0; i < this.price.length; i++) {
-      if (this.price[i].includes('[')) {
-        //removes date imes
-        //this.price.splice(i, 1);
-        this.price[i] = this.price[i].replace('[', '');
-        if (this.price[i].includes('[')) {
-          this.price[i] = this.price[i].replace('[', '');
-        }
-      }
-      if (this.price[i].includes(']')) {
-        this.price[i] = this.price[i].replace(']', '');
-        if (this.price[i].includes(']')) {
-          this.price[i] = this.price[i].replace(']', '');
-        }
-      }
-    }
-  }
 }

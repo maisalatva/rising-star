@@ -1,9 +1,7 @@
-//import { Component, OnInit } from '@angular/core';
 import { LongestBearishService } from '../longest-bearish.service';
-//import { Observable } from 'rxjs';
-//import { date } from '../date';
 import { Component, OnInit, Input } from '@angular/core';
-import { DateComponent } from '../date/date.component';
+import { DateService } from '../date.service';
+import { DataParserService } from '../data-parser.service';
 
 @Component({
   selector: 'app-longest-bearish',
@@ -12,107 +10,71 @@ import { DateComponent } from '../date/date.component';
 })
 export class LongestBearishComponent implements OnInit {
 
-  //bearish: Bearish = {
   @Input() startDate: String = "";
   @Input() endDate: String = "";
-  //}
 
-  // unixStart: number = 0;
-  // unixEnd: number = 0;
   string: String = "";
-  obj: Object = "";
-  json: any;
-  price: Array<String> = [];
 
-  verrattava: String = "";
-  montako: number = 0;
-  listamontako: Array<number> = [];
-  days: Array<String> = [];
+  howManyDays: number = 0;
+
   allTheDays: Array<Array<String>> = [];
 
-  //date1: String = "";
-  //date2: String = "";
-  date1: Date = new Date();
-  date2: Date = new Date();
+  bearishBeginDate: Date = new Date();
+  bearishEndDate: Date = new Date();
 
   clicked: Boolean = false;
 
-
-  //response = this.x.getPrice().subscribe(data => {console.log(data)});
-
-  // response2 = this.response.pipe(x => console.log(x.pipe(_)));
   constructor(
     private lbservice: LongestBearishService,
-    private date: DateComponent) { }
+    private dateService: DateService,
+    private dataService: DataParserService) { }
 
 
   ngOnInit(): void {
-    // this.lbservice.getJson(this.startDate, this.endDate).subscribe(data => {
-    //   this.json = JSON.parse(JSON.stringify(data))
-    //   //this.setString(JSON.stringify(data) )      
-    //   this.getPrices(JSON.stringify(this.json.prices));
-    //   //console.log(this.listamontako);
-    //   this.setString(this.listamontako.sort().reverse()[0].toString());
-    //   this.longestBearish();
-    //   //console.log(this.days.toString());
-    //   //console.log(this.listamontako.sort()[0].toString());
-    //   //this.setString(JSON.stringify(this.json.prices))
-    // });
-
-    // this.obj = JSON.parse(JSON.stringify(this.lbservice.getJson(this.startDate, this.endDate)));
-    // //this.x.getPrice().subscribe(data => {console.log(data)});
-    //this.getPrices();
-    // console.log(JSON.stringify(this.response));
   }
 
-  getDaysAndPrices(stri: String) {
-    this.price = stri.split(',');
+  getData(unixStart: number, unixEnd: number) {
+    this.lbservice.getJson(unixStart.toString(), 
+      unixEnd.toString()).subscribe(data => {
+      let json = JSON.parse(JSON.stringify(data));    
+      this.countBearishTrends(JSON.stringify(json.prices));
+      this.setDaysForLongestBearish();
+      this.setString(this.howManyDays.toString());
+    });
+  }
 
-    this.polishTheList();
+  search(){
+    let unixStart = this.dateService.getUnixTime(this.startDate);
+    let unixEnd = this.dateService.getUnixTime(this.endDate);
+    this.getData(unixStart, unixEnd);
+    this.clicked = true;
+  }
 
-    this.verrattava = this.price[1];
-    this.days.push(this.price[0]);
-    for (let j = 1; j < this.price.length; j++) {
-      if (j % 2 != 0 && this.price[j] < this.verrattava) {
+  countBearishTrends(stri: String) {
+    let daysAndPrices = this.dataService.parseTheData(stri);
 
-        //tyhjätään päivä lista jotta voidaan aloittaa alusta uuden listan kohdalla
-        if (this.days.length != 0 && this.montako == 0) {
-          this.allTheDays.push(this.days);
-          //console.log(this.allTheDays)
-          this.days = [];
+    let priceToCompare = daysAndPrices[1];
+
+    let days = [];
+    let listOfNumbers = [];
+
+    days.push(daysAndPrices[0]);
+    for (let j = 1; j < daysAndPrices.length; j++) {
+      if (j % 2 != 0 && daysAndPrices[j] < priceToCompare) {
+
+        if (days.length != 0 && this.howManyDays == 0) {
+          this.allTheDays.push(days);
+          days = [];
         }
-        //console.log(this.days.length);
 
-        this.montako = this.montako + 1;
-        this.verrattava = this.price[j];
-        this.days.push(this.price[j - 1]);
+        this.howManyDays = this.howManyDays + 1;
+        priceToCompare = daysAndPrices[j];
+        days.push(daysAndPrices[j - 1]);
       }
       else if (j % 2 != 0) {
-        this.listamontako.push(this.montako);
-
-        //this.days.push(this.price[j - 1]);
-        this.montako = 0;
-
-        this.verrattava = this.price[j];
-      }
-    }
-  }
-
-  polishTheList() {
-    for (let i = 0; i < this.price.length; i++) {
-      if (this.price[i].includes('[')) {
-        //removes date imes
-        //this.price.splice(i, 1);
-        this.price[i] = this.price[i].replace('[', '');
-        if (this.price[i].includes('[')) {
-          this.price[i] = this.price[i].replace('[', '');
-        }
-      }
-      if (this.price[i].includes(']')) {
-        this.price[i] = this.price[i].replace(']', '');
-        if (this.price[i].includes(']')) {
-          this.price[i] = this.price[i].replace(']', '');
-        }
+        listOfNumbers.push(this.howManyDays);
+        this.howManyDays = 0;
+        priceToCompare = daysAndPrices[j];
       }
     }
   }
@@ -121,67 +83,24 @@ export class LongestBearishComponent implements OnInit {
     this.string = stri;
   }
 
-  // getUnix(date1: String, date2: String) {
-  //   this.unixStart = new Date(date1 + " 00:00:00").getTime() / 1000;
-  //   this.unixEnd = new Date(date2 + " 00:00:00").getTime() / 1000;
-  // }
-
-  longestBearish() {
-    //for (let list in this.allTheDays){
-    let help = this.allTheDays.sort((a, b) => a.length - b.length).reverse()[0];
+  setDaysForLongestBearish() {
+    let sortedListOfDays = this.allTheDays.sort((a, b) => 
+      a.length - b.length).reverse()[0];
     
-    //valitaan päivän ensimmäinen hinta
-    let help2 = [];
-    for(let i = 1; i <= help.length; i++){
-      let eka = new Date(Number(help[i-1]))
-      //console.log(eka);
-      let toka = new Date(Number(help[i]))
-      //console.log(toka)
-      if(eka.toLocaleDateString("en-US") != toka.toLocaleDateString("en-US")){
-        //console.log("lol")
-        help2.push(eka);
+    //choose first price of the day
+    let helpList = [];
+    for(let i = 1; i <= sortedListOfDays.length; i++){
+      let firstDate = this.dateService.getTime(sortedListOfDays[i-1]);
+      let secondDate = this.dateService.getTime(sortedListOfDays[i]);
+      //compare with precision of date
+      if(firstDate.toLocaleDateString("en-US") != secondDate.toLocaleDateString("en-US")){
+        helpList.push(firstDate);
       }
     }
 
-    //console.log(help2);
-    this.montako = help2.length;
-    this.date1 = new Date(Number(help[0]));
-    this.date2 = new Date(Number(help[help.length - 1]));
-
-    // }
+    this.howManyDays = helpList.length;
+    this.bearishBeginDate = this.dateService.getTime(sortedListOfDays[0]);
+    this.bearishEndDate = this.dateService.getTime(sortedListOfDays[sortedListOfDays.length - 1]);
   }
 
-  getData(unixStart: number, unixEnd: number) {
-    this.lbservice.getJson(unixStart.toString(), unixEnd.toString()).subscribe(data => {
-      this.json = JSON.parse(JSON.stringify(data));
-      //this.setString(JSON.stringify(data) )      
-      this.getDaysAndPrices(JSON.stringify(this.json.prices));
-      //console.log(this.listamontako);
-      //this.setString(this.listamontako.sort().reverse()[0].toString());
-      this.longestBearish();
-      this.setString(this.montako.toString());
-      //console.log(this.days.toString());
-      //console.log(this.listamontako.sort()[0].toString());
-      //this.setString(JSON.stringify(this.json.prices))
-    });
-
-    //this.obj = JSON.parse(JSON.stringify(this.lbservice.getJson(this.unixStart.toString(), this.unixEnd.toString())));
-  }
-
-  search(){
-    let unixStart: number = 0;
-    let unixEnd: number = 0;
-    let sDate: String = this.startDate;
-    let eDate: String = this.endDate;
-    unixStart = this.date.getUnixStart(sDate);
-    unixEnd = this.date.getUnixEnd(eDate);
-    this.getData(unixStart, unixEnd);
-    this.clicked = true;
-  }
-  // getUnixStart() {
-  //   return this.unixStart;
-  // }
-  // getUnixEnd() {
-  //   return this.unixEnd;
-  // }
 }

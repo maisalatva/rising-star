@@ -7,7 +7,6 @@ import { LongestBearishComponent } from './longest-bearish/longest-bearish.compo
 
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { DateComponent } from './date/date.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { TradingVolumeComponent } from './trading-volume/trading-volume.component';
 import { TimeMachineComponent } from './time-machine/time-machine.component';
@@ -16,7 +15,6 @@ import { TimeMachineComponent } from './time-machine/time-machine.component';
   declarations: [
     AppComponent,
     LongestBearishComponent,
-    DateComponent,
     DashboardComponent,
     TradingVolumeComponent,
     TimeMachineComponent
@@ -27,7 +25,6 @@ import { TimeMachineComponent } from './time-machine/time-machine.component';
     FormsModule,
     HttpClientModule
   ],
-  providers: [DateComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
