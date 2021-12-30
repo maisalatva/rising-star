@@ -1,5 +1,4 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { DataParserService } from '../data-parser.service';
 import { DateService } from '../date.service';
 import { LongestBearishService } from '../longest-bearish.service';
 
@@ -20,8 +19,7 @@ export class TradingVolumeComponent implements OnInit {
 
   constructor(
     private dateService: DateService,
-    private lbservice: LongestBearishService,
-    private dataService: DataParserService) { }
+    private lbservice: LongestBearishService) { }
 
   ngOnInit(): void {
   }
@@ -30,7 +28,7 @@ export class TradingVolumeComponent implements OnInit {
     this.lbservice.getJson(unixStart.toString(), 
       unixEnd.toString()).subscribe(data => {
       let json = JSON.parse(JSON.stringify(data));
-      this.getHighestTradingVolume(JSON.stringify(json.total_volumes));
+      this.getHighestTradingVolume(json.total_volumes);
     });
   }
 
@@ -41,30 +39,27 @@ export class TradingVolumeComponent implements OnInit {
     this.clicked = true;
   }
 
-  sortPerDay(stri: String){
-    let daysAndPrices = this.dataService.parseTheData(stri);
+  sortPerDay(json: any){
     let mapOfDaysAndPrices = new Map<String, Number>();
-    // j % 2 != 0 when list item is price, otherwise unix date
-    for(let i = 1; i < daysAndPrices.length; i+=2){
-      let currentKey = this.dateService.getTime(daysAndPrices[i-1])
+    for(let i = 0; i < json.length; i++){
+      let currentKey = this.dateService.getTime(json[i][0])
         .toLocaleDateString("en-US");
       let x = mapOfDaysAndPrices.get(currentKey);
       if (x == undefined){
         mapOfDaysAndPrices.set(currentKey, 
-            Number(daysAndPrices[i]));
+            Number(json[i][1]));
       }
       else{
         mapOfDaysAndPrices.set(currentKey, 
-            Number(x)+Number(daysAndPrices[i]));
+            Number(x)+Number(json[i][1]));
       }
-      
     }
     return mapOfDaysAndPrices;
   }
 
-  getHighestTradingVolume(stri: String) {
+  getHighestTradingVolume(json: any) {
 
-    let volumePerDay = this.sortPerDay(stri);
+    let volumePerDay = this.sortPerDay(json);
   
     let compareVolume: Number = 0;
     let compareDay: String = "";

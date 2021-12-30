@@ -1,5 +1,4 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { DataParserService } from '../data-parser.service';
 import { DateService } from '../date.service';
 import { LongestBearishService } from '../longest-bearish.service';
 
@@ -25,8 +24,7 @@ export class TimeMachineComponent implements OnInit {
 
   constructor(
     private dateService: DateService,
-    private lbservice: LongestBearishService,
-    private dataService: DataParserService) { }
+    private lbservice: LongestBearishService) { }
 
   ngOnInit(): void {
   }
@@ -35,7 +33,7 @@ export class TimeMachineComponent implements OnInit {
     this.lbservice.getJson(unixStart.toString(), 
       unixEnd.toString()).subscribe(data => {
       let json = JSON.parse(JSON.stringify(data));
-      this.convertStringToProfitMap(JSON.stringify(json.prices));
+      this.convertStringToProfitMap(json.prices);
       this.setDaysForTimeMachine();
     });
   }
@@ -58,19 +56,16 @@ export class TimeMachineComponent implements OnInit {
     this.timeToBuy = this.dateService.getTime(this.lowestPriceDay);
   }
 
-  convertStringToProfitMap(stri: String) {
-    let daysAndPrices = this.dataService.parseTheData(stri);
-
+  convertStringToProfitMap(json: any) {
     let days = "";
     let mapOfDaysAndProfits = new Map<String, Number>()
-    let profit = Number(daysAndPrices[1]);
-    // j % 2 != 0 when list item is price, otherwise unix date
-    for(let i = daysAndPrices.length-1; i >= 0; i-=2){
-      let endValue = Number(daysAndPrices[daysAndPrices.length-1]);
-      for(let j = 1; j < i; j+=2){
-        if(Number(daysAndPrices[j]) < endValue){
-          profit = endValue-Number(daysAndPrices[j]);
-          days = daysAndPrices[i-1] + "," + daysAndPrices[j-1];
+    let profit = Number(json[0][1]);
+    for(let i = json.length-1; i >= 0; i--){
+      let endValue = Number(json[json.length-1][1]);
+      for(let j = 0; j < i; j++){
+        if(Number(json[j][1]) < endValue){
+          profit = endValue-Number(json[j][1]);
+          days = json[i][0] + "," + json[j][0];
           mapOfDaysAndProfits.set(days, profit);
         }
       }

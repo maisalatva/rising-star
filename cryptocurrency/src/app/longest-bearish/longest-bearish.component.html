@@ -9,17 +9,12 @@
 </div>
 <button class="Search" (click)="search()">Search</button>
 <p>&nbsp;</p>
-<!-- <p></p>
-<div><span>Start Date: </span> {{startDate}}</div>
-<div><span>End Date: </span> {{endDate}}</div>
-<p></p> -->
 
-<!-- <div><span>Start date in UNIX: </span> {{unixStart}}
-    <p></p>
-    <span>End date in UNIX: </span> {{unixEnd}}
-    <p></p> -->
-    <div *ngIf = 'clicked'>
+<div *ngIf = 'clicked'>
     <span> In bitcoin's historical data from CoinGecko, the price decreased </span> {{string}} 
     <span> day(s) in a row, from </span> {{bearishBeginDate.toLocaleDateString("en-US")}} 
     <span> to </span> {{bearishEndDate.toLocaleDateString("en-US")}}.
 </div>
+
+<div *ngIf = 'noBearish'>
+    <span> There is no bearish on given date range.</span></div>
