@@ -15,16 +15,18 @@ export class TimeMachineComponent implements OnInit {
 
   highestPriceDay: String = "";
   lowestPriceDay: String = "";
+  biggestProfit: Number = 0;
 
   timeToSell: Date = new Date();
   timeToBuy: Date = new Date();
 
   clicked: Boolean = false;
+  noProfit: Boolean = false;
 
   constructor(
     private dateService: DateService,
     private lbservice: LongestBearishService,
-    private dataSercie: DataParserService) { }
+    private dataService: DataParserService) { }
 
   ngOnInit(): void {
   }
@@ -39,10 +41,16 @@ export class TimeMachineComponent implements OnInit {
   }
 
   search() {
+    this.noProfit = false;
+    this.highestPriceDay = "";
+    this.lowestPriceDay = "";
+    this.biggestProfit = 0;
     let unixStart = this.dateService.getUnixTime(this.startDate);
     let unixEnd = this.dateService.getUnixTime(this.endDate);
     this.getData(unixStart, unixEnd);
-    this.clicked = true;
+    if(this.noProfit == false){
+      this.clicked = true;
+    }
   }
 
   setDaysForTimeMachine() {
@@ -51,11 +59,12 @@ export class TimeMachineComponent implements OnInit {
   }
 
   convertStringToProfitMap(stri: String) {
-    let daysAndPrices = this.dataSercie.parseTheData(stri);
+    let daysAndPrices = this.dataService.parseTheData(stri);
 
     let days = "";
     let mapOfDaysAndProfits = new Map<String, Number>()
     let profit = Number(daysAndPrices[1]);
+    // j % 2 != 0 when list item is price, otherwise unix date
     for(let i = daysAndPrices.length-1; i >= 0; i-=2){
       let endValue = Number(daysAndPrices[daysAndPrices.length-1]);
       for(let j = 1; j < i; j+=2){
@@ -67,15 +76,19 @@ export class TimeMachineComponent implements OnInit {
       }
     }
 
+    if(mapOfDaysAndProfits.size == 0){
+      this.noProfit = true;
+      this.clicked = false;
+    }
+
     this.getBiggestProfit(mapOfDaysAndProfits);
   }
 
   getBiggestProfit(mappi: Map<String, Number>){
-    let biggestProfit = 0;
     let days = "";
     for(let key of mappi.keys()){
-      if(Number(mappi.get(key)) > biggestProfit){
-        biggestProfit = Number(mappi.get(key));
+      if(Number(mappi.get(key)) > this.biggestProfit){
+        this.biggestProfit = Number(mappi.get(key));
         days = key.toString();
       }
     }

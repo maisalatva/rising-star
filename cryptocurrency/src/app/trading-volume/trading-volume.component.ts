@@ -44,6 +44,7 @@ export class TradingVolumeComponent implements OnInit {
   sortPerDay(stri: String){
     let daysAndPrices = this.dataService.parseTheData(stri);
     let mapOfDaysAndPrices = new Map<String, Number>();
+    // j % 2 != 0 when list item is price, otherwise unix date
     for(let i = 1; i < daysAndPrices.length; i+=2){
       let currentKey = this.dateService.getTime(daysAndPrices[i-1])
         .toLocaleDateString("en-US");

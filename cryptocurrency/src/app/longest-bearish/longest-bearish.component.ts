@@ -60,6 +60,7 @@ export class LongestBearishComponent implements OnInit {
 
     days.push(daysAndPrices[0]);
     for (let j = 1; j < daysAndPrices.length; j++) {
+      // j % 2 != 0 when list item is price, otherwise unix date
       if (j % 2 != 0 && daysAndPrices[j] < priceToCompare) {
 
         if (days.length != 0 && this.howManyDays == 0) {
