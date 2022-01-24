@@ -1,4 +1,4 @@
-import { LongestBearishService } from '../longest-bearish.service';
+import { JsonService } from '../json.service';
 import { Component, OnInit, Input } from '@angular/core';
 import { DateService } from '../date.service';
 
@@ -25,7 +25,7 @@ export class LongestBearishComponent implements OnInit {
   noBearish: Boolean = false;
 
   constructor(
-    private lbservice: LongestBearishService,
+    private jsonService: JsonService,
     private dateService: DateService) { }
 
 
@@ -42,7 +42,7 @@ export class LongestBearishComponent implements OnInit {
   }
 
   getData(unixStart: number, unixEnd: number) {
-    this.lbservice.getJson(unixStart.toString(), 
+    this.jsonService.getJson(unixStart.toString(), 
       unixEnd.toString()).subscribe(data => {
       let json = JSON.parse(JSON.stringify(data));    
       this.countBearishTrends(json.prices);

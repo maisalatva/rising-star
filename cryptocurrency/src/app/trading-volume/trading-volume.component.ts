@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { DateService } from '../date.service';
-import { LongestBearishService } from '../longest-bearish.service';
+import { JsonService } from '../json.service';
 
 @Component({
   selector: 'app-trading-volume',
@@ -19,13 +19,13 @@ export class TradingVolumeComponent implements OnInit {
 
   constructor(
     private dateService: DateService,
-    private lbservice: LongestBearishService) { }
+    private jsonService: JsonService) { }
 
   ngOnInit(): void {
   }
 
   getData(unixStart: Number, unixEnd: Number) {
-    this.lbservice.getJson(unixStart.toString(), 
+    this.jsonService.getJson(unixStart.toString(), 
       unixEnd.toString()).subscribe(data => {
       let json = JSON.parse(JSON.stringify(data));
       this.getHighestTradingVolume(json.total_volumes);
